@@ -5,23 +5,35 @@ Inspired by an article on medium.com
 https://franky07724-57962.medium.com/using-keras-pre-trained-models-for-feature-extraction-in-image-clustering-a142c6cdf5b1
 """
 
+import sys
 import os
 os.environ.setdefault("KERAS_BACKEND", "torch")  # Use PyTorch backend
 
 import keras
+from keras.applications import vgg16
 import numpy as np
 from pathlib import Path
 
-def extract_img(model: keras.applications.vgg16.VGG16, img_path: Path) -> np.ndarray:
-    """
-    Using the given model, extract the features of the loaded image. Return them in a single np vector.
-    """
-    img = keras.utils.load_img(img_path, target_size=(224, 224))
-    img_data = keras.utils.img_to_array(img)
-    img_data = np.expand_dims(img_data, axis=0)  # 0-th dimension... batch size (1)
-    img_data = keras.applications.vgg16.preprocess_input(img_data)
+# parameter of the vgg16 model
+FEATURE_SIZE = 25088
 
-    return model.predict(img_data).flatten()
+def extract_batch(model: vgg16.VGG16, img_paths: list[Path]) -> np.ndarray:
+    """
+    Using the given model, extract the features of the loaded image. Return them in a numpy array
+    of shape (BATCH_SIZE, 25088).
+    """
+    batch_array = np.ndarray((len(img_paths), 224, 224, 3), dtype=np.float32)
+    i = 0
+    for p in img_paths:
+        img = keras.utils.load_img(p, target_size=(224, 224))
+        batch_array[i] = keras.utils.img_to_array(img)
+        i += 1
+
+    # add 0-th dimension... only when batch size is (implicit) 1
+    # img_data = np.expand_dims(img_data, axis=0)
+    batch_array = vgg16.preprocess_input(batch_array)
+    batch_array = model.predict(batch_array)
+    return batch_array.reshape(batch_array.shape[0], -1)  # keep 1st dimension (images), flatten the rest
 
 
 def extract_dir(dir_path: Path) -> tuple[np.ndarray, list[str]]:
@@ -29,27 +41,43 @@ def extract_dir(dir_path: Path) -> tuple[np.ndarray, list[str]]:
     Open a directory of images, load them and extract their features. Store these features in a single array.
     Using the VGG16 model for feature extraction, the output shape will be (IMG_COUNT, 25088).
 
-    TODO: This could be further optimized by performing the extraction in batches, instead of single images.
-    However, this approach does not have to solve any excessive memory use when the image count is higher.
+    This is further optimized by performing the extraction in batches, instead of single images.
+    Batch size is fixed to 64 to solve any excessive memory use when the image count is higher.
     """
-    model = keras.applications.vgg16.VGG16(weights='imagenet', include_top=False)  # without the final fc layer + softmax
+    model = vgg16.VGG16(weights='imagenet', include_top=False)  # without the final fc layer + softmax
     img_order = []
     feats = []
 
+    loaded = 0
+    img_to_load = []
     for img in dir_path.iterdir():
         if img.suffix in [".png", ".jpg", ".jpeg"]:  # other formats are probably also compatible
-            print(img)
+            # print(img)
             img_order.append(img.name)  # only the file name, assumes the dir path knowledge
-            feats.append(extract_img(model, img))
+            img_to_load.append(img)  # full name, for image loading and processing
 
-    feat_array = np.array(feats)  # highest axis... individual images
+            # process one batch
+            if len(img_order) % 64 == 0:
+                feats.append(extract_batch(model, img_to_load))
+                loaded += len(img_to_load)
+                print(f"Loaded: {loaded}")
+                img_to_load = []
+
+    # remaining (smaller batch)
+    if img_to_load != []:
+        feats.append(extract_batch(model, img_to_load))
+        loaded += len(img_to_load)
+        print(f"Loaded: {loaded}")
+
+    feat_array = np.concatenate(feats, axis=0)  # highest axis... individual images
     return feat_array, img_order
 
 if __name__ == "__main__":
-    features, img_order = extract_dir(Path("data"))
+    dir = sys.argv[1] if len(sys.argv) > 1 else "data"
+    features, img_order = extract_dir(Path(dir))
     # print(feat.shape)
-    np.save("data/features.npy", features)
+    np.savez_compressed(dir + "/features.npz", features)
 
-    with open("data/img_order.txt", "w") as f:
+    with open(dir + "/img_order.txt", "w") as f:
         for img in img_order:
             f.write(f"{img}\n")

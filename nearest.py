@@ -3,10 +3,13 @@ Using precomputed weights, find the closest photos to a photo.
 """
 
 import numpy as np
-from pathlib import Path
+import sys
+# from pathlib import Path
 
 if __name__ == "__main__":
-    feats = np.load("data/features.npy")
+    img_path = sys.argv[1] if len(sys.argv) > 1 else "IMG20230803112016.jpg"
+
+    feats = np.load("data/features.npz")['arr_0']  # selection from "archive" needed for npz
     imgs = feats.shape[0]
 
     print(f"{imgs} images loaded")
@@ -15,9 +18,6 @@ if __name__ == "__main__":
         names = f.read().split()
     assert imgs == len(names), "Mismatch detected between the image names and feature matrix."
 
-    # TODO... argparse, some form of input
-    # img_path = "IMG20230722120908.jpg"
-    img_path = "IMG20230803112016.jpg"
     img_index = names.index(img_path)
 
     # cosine (dot-product) similarity... higher is better
