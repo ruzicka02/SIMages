@@ -69,6 +69,10 @@ def extract_dir(dir_path: Path) -> tuple[np.ndarray, list[str]]:
         loaded += len(img_to_load)
         print(f"Loaded: {loaded}")
 
+    if len(feats) == 0:
+        print(f"Directory {dir_path} does not contain any supported pictures!")
+        sys.exit(1)
+
     feat_array = np.concatenate(feats, axis=0)  # highest axis... individual images
     return feat_array, img_order
 
