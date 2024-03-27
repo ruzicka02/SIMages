@@ -3,22 +3,42 @@ import nearest
 from nicegui import ui
 from pathlib import Path
 
+k = 10
+close_img: list[tuple[Path, float]] = []
+
+dialog = None
+dialog_image_ui = None
+
+def open_dialog(url: str):
+    print("Dialog:", url)
+    dialog_image_ui.set_source(url)
+    dialog.open()
+
+@ui.refreshable
+def image_preview():
+    # print("Image preview:", draw_imgs)
+    print(f"{k} visible")
+    with ui.row().style('display: flex; flex-wrap: wrap; justify-content: space-evenly; padding: 0 4px; margin: auto'):
+        for img, similarity in close_img:
+            # ui.button("Image 1") ui.button("Image 2", on_click=lambda: open_dialog(image_url_2))
+            with ui.button(on_click=lambda local_img=img: open_dialog(local_img)).style('padding: 0px'):
+                with ui.card().tight():
+                # print("Draw:", img)
+                    ui.image(img).style('width: 18vw; vertical-align: middle')
+                    with ui.card_section():
+                        ui.label(f"{similarity:7.3f} % similarity").style("color: #15141A")
+
 @ui.page("/similar")
 def similar_results(source_img: str, join_on: str = None):
     source_img = Path(source_img)
     if join_on:
         join_on = Path(join_on)
 
-    close_img: list[tuple[Path, float]] = nearest.knn_query(source_img, 10, join_on, verbose=True)
+    global close_img
+    close_img = nearest.knn_query(source_img, k, join_on, verbose=True)
 
-    dialog_image_ui = None
-
-    def open_dialog(url: str):
-        print("Dialog:", url)
-        dialog_image_ui.set_source(url)
-        dialog.open()
-
-
+    global dialog
+    global dialog_image_ui
     with ui.dialog() as dialog:
         dialog_image_ui = ui.image().style("width: 100%; height: auto")
 

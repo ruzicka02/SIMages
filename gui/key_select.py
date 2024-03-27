@@ -18,11 +18,10 @@ def image_preview():
         for img in draw_imgs:
             with ui.button(on_click=lambda local_img=img: ui.navigate.to(f"/similar?source_img={local_img}{f"&join_on={join_on}" if join_on else ""}")).style('padding: 0px'):
                 with ui.card().tight():
+                    # print("Draw:", img)
                     ui.image(img).style('width: 18vw; vertical-align: middle')
                     with ui.card_section():
                         ui.label(img.name).style("color: #15141A")
-                #
-                    # print("Draw:", img)
 
 
 def select_dir(toggle: ui.toggle):
@@ -60,11 +59,11 @@ def key_select():
         ui.label('SIMages - key image selection').style('font-size: 3em; font-weight: 300')  # color: #6E93D6;
 
     ui.label('Key image directory:')
-    dir_toggle = ui.toggle({x: str(x) for x in subdirs}, value=subdirs[0], on_change=lambda: select_dir(dir_toggle))
+    dir_toggle = ui.toggle({x: x.name for x in subdirs}, value=subdirs[0], on_change=lambda: select_dir(dir_toggle))
     select_dir(dir_toggle)
 
     ui.label('Join on:')
-    join_toggle = ui.toggle({x: str(x) for x in subdirs}, value=subdirs[0], on_change=lambda: select_join(join_toggle))
+    join_toggle = ui.toggle({x: x.name for x in subdirs}, value=subdirs[0], on_change=lambda: select_join(join_toggle))
     select_join(join_toggle)
 
     image_preview()
