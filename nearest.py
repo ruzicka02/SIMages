@@ -6,7 +6,7 @@ import numpy as np
 from pathlib import Path
 import sys
 
-def knn_query(img: Path, k: int, query_data: Path | None = None) -> list[tuple[Path, float]]:
+def knn_query(img: Path, k: int, query_data: Path | None = None, verbose: bool = False) -> list[tuple[Path, float]]:
     """
     Select k items from query_data directory most similar to img. When query_data is not given,
     assume the parent directory of img (self-join).
@@ -43,6 +43,10 @@ def knn_query(img: Path, k: int, query_data: Path | None = None) -> list[tuple[P
         name = names[np.where(sims == s)[0][0]]
         result.append((Path(query_data / name), 100 * s))
 
+    if verbose:
+        for name, similarity in result:
+            print(f"{similarity:7.3f} % - {name} {'(identity)' if name == img else ''}")
+
     return result
 
     # time benchmark - entire similarity matrix
@@ -56,7 +60,4 @@ if __name__ == "__main__":
     data_path = Path(data_path)
 
     # results = knn_query(img_path, 10)
-    results = knn_query(img_path, 10, data_path)
-
-    for name, similarity in results:
-        print(f"{similarity:7.3f} % - {name} {'(identity)' if name == img_path else ''}")
+    result = knn_query(img_path, 10, data_path, verbose=True)
