@@ -24,14 +24,17 @@ def image_preview():
                         ui.label(img.name).style("color: #15141A")
 
 
-def select_dir(toggle: ui.toggle):
+def select_dir(toggle: ui.toggle, switch_shuffle: ui.switch):
+    # print(switch_shuffle.value)
+
     global all_imgs
     global draw_imgs
     global imgs_visible
     print("Toggle:", toggle.value)
     with open(toggle.value / "img_order.txt", "r") as f:
         new_imgs = [toggle.value / Path(x) for x in f.read().split()]
-        shuffle(new_imgs)
+        if switch_shuffle.value:
+            shuffle(new_imgs)
         all_imgs = new_imgs
 
     imgs_visible = 10
@@ -59,8 +62,10 @@ def key_select():
         ui.label('SIMages - key image selection').style('font-size: 3em; font-weight: 300')  # color: #6E93D6;
 
     ui.label('Key image directory:')
-    dir_toggle = ui.toggle({x: x.name for x in subdirs}, value=subdirs[0], on_change=lambda: select_dir(dir_toggle))
-    select_dir(dir_toggle)
+    with ui.row():
+        dir_toggle = ui.toggle({x: x.name for x in subdirs}, value=subdirs[0], on_change=lambda: select_dir(dir_toggle, dir_shuffle))
+        dir_shuffle = ui.switch("Shuffle", on_change=lambda: select_dir(dir_toggle, dir_shuffle))
+    select_dir(dir_toggle, dir_shuffle)
 
     ui.label('Join on:')
     join_toggle = ui.toggle({x: x.name for x in subdirs}, value=subdirs[0], on_change=lambda: select_join(join_toggle))
