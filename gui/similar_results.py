@@ -48,7 +48,8 @@ def similar_results(source_img: str, join_on: str = None):
         join_on = Path(join_on)
 
     global close_img
-    close_img = nearest.knn_query(source_img, k, join_on, verbose=True)
+    # close_img = nearest.knn_query(source_img, k, join_on, verbose=True)
+    close_img = nearest.range_query(source_img, 0.3, join_on, verbose=True)
 
     global dialog
     global dialog_image_ui
@@ -67,7 +68,7 @@ def similar_results(source_img: str, join_on: str = None):
     # similar images
     # https://www.w3schools.com/howto/howto_js_image_grid.asp
     ui.label('You may also like:').style('font-size: 1.5em; font-weight: 300; margin-left: 10%')
-    with ui.row().style('display: flex; flex-wrap: wrap; justify-content: space-evenly; padding: 0 4px; margin: auto'):
+    with ui.row().style('display: flex; flex-wrap: wrap; justify-content: left; padding: 0 2%; margin: auto'):
         for img, similarity in close_img:
             # ui.button("Image 1") ui.button("Image 2", on_click=lambda: open_dialog(image_url_2))
             with ui.button(on_click=lambda local_img=img: open_dialog(local_img)).style('padding: 0px'):
