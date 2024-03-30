@@ -1,6 +1,6 @@
 import nearest
 
-from nicegui import ui
+from nicegui import ui, events
 from pathlib import Path
 
 k = 10
@@ -8,6 +8,19 @@ close_img: list[tuple[Path, float]] = []
 
 dialog = None
 dialog_image_ui = None
+
+# https://github.com/zauberzeug/nicegui/blob/main/examples/lightbox/main.py
+def handle_key(event_args: events.KeyEventArguments) -> None:
+        if not event_args.action.keydown:
+            return
+        # if event_args.key.escape:
+        #     dialog.close()
+        # image_index = close_img.index(dialog_image_ui)
+        # if event_args.key.arrow_left and image_index > 0:
+        #     self._open(self.image_list[image_index - 1])
+        # if event_args.key.arrow_right and image_index < len(self.image_list) - 1:
+        #     self._open(self.image_list[image_index + 1])
+        dialog.close()
 
 def open_dialog(url: str):
     print("Dialog:", url)
@@ -39,11 +52,12 @@ def similar_results(source_img: str, join_on: str = None):
 
     global dialog
     global dialog_image_ui
-    with ui.dialog() as dialog:
-        dialog_image_ui = ui.image().style("width: 100%; height: auto")
+    with ui.dialog().props('maximized') as dialog:
+        # ui.keyboard(handle_key)
+        dialog_image_ui = ui.image().props('fit=scale-down').on('click', lambda: dialog.close())
 
     with ui.header(elevated=True).style('background-color: #3874c8').classes('items-center justify-between'):
-        ui.label('SIMages - Similar results').style('font-size: 4em; font-weight: 300')  # color: #6E93D6;
+        ui.label('SIMages - Similar results').style('font-size: 3em; font-weight: 300')  # color: #6E93D6;
         ui.button(icon='home', on_click=lambda: ui.navigate.to('/'))
     # ui.image('data/IMG20230803112016.jpg').classes('w-256')
 
