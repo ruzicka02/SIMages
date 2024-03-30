@@ -6,11 +6,15 @@ import numpy as np
 from pathlib import Path
 import sys
 
+from utils import chdir
+
 def knn_query(img: Path, k: int, query_data: Path | None = None, verbose: bool = False) -> list[tuple[Path, float]]:
     """
     Select k items from query_data directory most similar to img. When query_data is not given,
     assume the parent directory of img (self-join).
     """
+    chdir()
+
     if not query_data:
         query_data = img.parent
 

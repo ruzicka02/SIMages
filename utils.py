@@ -1,9 +1,12 @@
 import os
 from pathlib import Path
 
-def list_subdirs():
+def chdir():
     os.chdir(Path(__file__).parent)
     print("CWD", os.getcwd())
+
+def list_subdirs():
+    chdir()
 
     subdirs = []
     for path in Path("data").iterdir():
