@@ -74,8 +74,13 @@ def similar_results(source_img: str, join_on: str = None, m: str = None, q: str 
 
     # similar images
     # https://www.w3schools.com/howto/howto_js_image_grid.asp
+    images_not_displayed = 0
     ui.label('You may also like:').style('font-size: 1.5em; font-weight: 300; margin-left: 10%')
     with ui.row().style('display: flex; flex-wrap: wrap; justify-content: left; padding: 0 2%; margin: auto'):
+        img_max_display = 30
+        if len(close_img) > img_max_display:
+            images_not_displayed = len(close_img) - img_max_display
+            close_img = close_img[:img_max_display]
         for img, metric in close_img:
             # ui.button("Image 1") ui.button("Image 2", on_click=lambda: open_dialog(image_url_2))
             with ui.button(on_click=lambda local_img=img: open_dialog(local_img)).style('padding: 0px'):
@@ -85,3 +90,5 @@ def similar_results(source_img: str, join_on: str = None, m: str = None, q: str 
                     with ui.card_section():
                         label = f"{metric:7.3f} % similarity" if m == "cos" else f"distance {int(metric)}"
                         ui.label(label).style("color: #15141A")
+    if images_not_displayed > 0:
+        ui.label(f'{images_not_displayed} images not displayed').style('font-size: 1.5em; font-weight: 300; margin-left: 10%')
