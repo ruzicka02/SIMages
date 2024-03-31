@@ -9,8 +9,21 @@ draw_imgs = []
 all_imgs = []
 imgs_visible = 0
 join_on = None
+metric = None
 query_type = None
 limit = None
+
+def get_url(img: str) -> str:
+    url = f"/similar?source_img={img}"
+    if join_on:
+        url += f"&join_on={join_on}"
+    if metric:
+        url += f"&m={metric}"
+    if query_type:
+        url += f"&q={query_type}"
+    if limit:
+        url += f"&limit={limit}"
+    return url
 
 @ui.refreshable
 def image_preview():
@@ -18,14 +31,7 @@ def image_preview():
     print(f"{imgs_visible} visible")
     with ui.row().style('display: flex; flex-wrap: wrap; justify-content: left; padding: 0 4px; margin: auto'):
         for img in draw_imgs:
-            url = f"/similar?source_img={img}"
-            if join_on:
-                url += f"&join_on={join_on}"
-            if query_type:
-                url += f"&q={query_type}"
-            if limit:
-                url += f"&limit={limit}"
-            with ui.button(on_click=lambda local_url=url: ui.navigate.to(local_url)).style('padding: 0px'):
+            with ui.button(on_click=lambda local_img=img: ui.navigate.to(get_url(local_img))).style('padding: 0px'):
                 with ui.card().tight():
                     # print("Draw:", img)
                     ui.image(img).style('width: 18vw; vertical-align: middle')
@@ -56,7 +62,12 @@ def select_join(toggle: ui.toggle):
     global join_on
     join_on = toggle.value
 
-def select_query(toggle: ui.toggle, knn: ui.input, range: ui.input):
+def select_metric(toggle: ui.radio):
+    print("Metric:", toggle.value)
+    global metric
+    metric = toggle.value
+
+def select_query(toggle: ui.radio, knn: ui.input, range: ui.input):
     print("Query type:", toggle.value)
     global query_type
     query_type = toggle.value
@@ -99,11 +110,17 @@ def key_select():
     ui.label('Join on:')
     with ui.row():
         join_toggle = ui.toggle({x: x.name for x in subdirs}, value=subdirs[0], on_change=lambda: select_join(join_toggle))
-        query_toggle = ui.toggle(["knn", "range"], value="knn", on_change=lambda: select_query(query_toggle, knn_input, range_input))
+        ui.space().style("width: 10vw")
+
+        metric_toggle = ui.radio({"cos": "Cosine similarity", "euclid": "Euclidean distance"}, value="cos",
+                                 on_change=lambda: select_metric(metric_toggle))
+        query_toggle = ui.radio({"knn": "kNN query", "range": "Range query"}, value="knn",
+                                on_change=lambda: select_query(query_toggle, knn_input, range_input))
         knn_input = ui.input(label="# Nearest neighbors (k)", value="10", on_change=lambda: select_limit(knn_input))
         range_input = ui.input(label="Range limit", value="0.3", on_change=lambda: select_limit(range_input))
 
     select_join(join_toggle)
+    select_metric(metric_toggle)
     select_query(query_toggle, knn_input, range_input)
 
     image_preview()

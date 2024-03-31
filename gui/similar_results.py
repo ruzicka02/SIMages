@@ -41,10 +41,12 @@ def image_preview():
                         ui.label(f"{similarity:7.3f} % similarity").style("color: #15141A")
 
 @ui.page("/similar")
-def similar_results(source_img: str, join_on: str = None, q: str = None, limit: str = None):
+def similar_results(source_img: str, join_on: str = None, m: str = None, q: str = None, limit: str = None):
     source_img = Path(source_img)
     if join_on:
         join_on = Path(join_on)
+    if not m:
+        m = "cos"
     if not q:
         q = "knn"
     if not limit:
@@ -52,9 +54,9 @@ def similar_results(source_img: str, join_on: str = None, q: str = None, limit: 
 
     global close_img
     if q == "knn":
-        close_img = nearest.knn_query(source_img, int(limit), join_on, verbose=True)
+        close_img = nearest.knn_query(source_img, m, int(limit), join_on, verbose=True)
     elif q == "range":
-        close_img = nearest.range_query(source_img, float(limit), join_on, verbose=True)
+        close_img = nearest.range_query(source_img, m, float(limit), join_on, verbose=True)
 
     global dialog
     global dialog_image_ui
@@ -74,11 +76,12 @@ def similar_results(source_img: str, join_on: str = None, q: str = None, limit: 
     # https://www.w3schools.com/howto/howto_js_image_grid.asp
     ui.label('You may also like:').style('font-size: 1.5em; font-weight: 300; margin-left: 10%')
     with ui.row().style('display: flex; flex-wrap: wrap; justify-content: left; padding: 0 2%; margin: auto'):
-        for img, similarity in close_img:
+        for img, metric in close_img:
             # ui.button("Image 1") ui.button("Image 2", on_click=lambda: open_dialog(image_url_2))
             with ui.button(on_click=lambda local_img=img: open_dialog(local_img)).style('padding: 0px'):
                 with ui.card().tight():
                 # print("Draw:", img)
                     ui.image(img).style('width: 18vw; vertical-align: middle')
                     with ui.card_section():
-                        ui.label(f"{similarity:7.3f} % similarity").style("color: #15141A")
+                        label = f"{metric:7.3f} % similarity" if m == "cos" else f"distance {int(metric)}"
+                        ui.label(label).style("color: #15141A")
