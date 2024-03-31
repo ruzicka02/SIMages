@@ -3,7 +3,6 @@ import nearest
 from nicegui import ui, events
 from pathlib import Path
 
-k = 10
 close_img: list[tuple[Path, float]] = []
 
 dialog = None
@@ -42,14 +41,20 @@ def image_preview():
                         ui.label(f"{similarity:7.3f} % similarity").style("color: #15141A")
 
 @ui.page("/similar")
-def similar_results(source_img: str, join_on: str = None):
+def similar_results(source_img: str, join_on: str = None, q: str = None, limit: str = None):
     source_img = Path(source_img)
     if join_on:
         join_on = Path(join_on)
+    if not q:
+        q = "knn"
+    if not limit:
+        limit = 10 if q == "knn" else 0.3
 
     global close_img
-    # close_img = nearest.knn_query(source_img, k, join_on, verbose=True)
-    close_img = nearest.range_query(source_img, 0.3, join_on, verbose=True)
+    if q == "knn":
+        close_img = nearest.knn_query(source_img, int(limit), join_on, verbose=True)
+    elif q == "range":
+        close_img = nearest.range_query(source_img, float(limit), join_on, verbose=True)
 
     global dialog
     global dialog_image_ui
