@@ -61,7 +61,7 @@ def knn_query(img: Path, metric: str, k: int, query_data: Path | None = None, ve
     result = []
     for s in sorted(sims)[:res_limit:res_step]:  # top k
         name = names[np.where(sims == s)[0][0]]
-        result.append((Path(query_data / name), 100 * s))
+        result.append((Path(query_data / name), 100 * s if metric == "cos" else s))
 
     if verbose:
         for name, similarity in result:

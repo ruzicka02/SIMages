@@ -62,10 +62,13 @@ def select_join(toggle: ui.toggle):
     global join_on
     join_on = toggle.value
 
-def select_metric(toggle: ui.radio):
+def select_metric(toggle: ui.radio, range_input: ui.input):
     print("Metric:", toggle.value)
     global metric
     metric = toggle.value
+
+    # range values for metrics differ significantly... override
+    range_input.value = "0.3" if metric == "cos" else "1000"
 
 def select_query(toggle: ui.radio, knn: ui.input, range: ui.input):
     print("Query type:", toggle.value)
@@ -113,14 +116,14 @@ def key_select():
         ui.space().style("width: 10vw")
 
         metric_toggle = ui.radio({"cos": "Cosine similarity", "euclid": "Euclidean distance"}, value="cos",
-                                 on_change=lambda: select_metric(metric_toggle))
+                                 on_change=lambda: select_metric(metric_toggle, range_input))
         query_toggle = ui.radio({"knn": "kNN query", "range": "Range query"}, value="knn",
                                 on_change=lambda: select_query(query_toggle, knn_input, range_input))
         knn_input = ui.input(label="# Nearest neighbors (k)", value="10", on_change=lambda: select_limit(knn_input))
         range_input = ui.input(label="Range limit", value="0.3", on_change=lambda: select_limit(range_input))
 
     select_join(join_toggle)
-    select_metric(metric_toggle)
+    select_metric(metric_toggle, range_input)
     select_query(query_toggle, knn_input, range_input)
 
     image_preview()
