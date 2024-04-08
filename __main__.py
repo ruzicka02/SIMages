@@ -2,12 +2,12 @@
 
 # relative imports
 # alternatively, from nearest import ...
-import nearest
 import gui
-
 from nicegui import ui
-from pathlib import Path
-import sys
+
+# import nearest
+# from pathlib import Path
+# import sys
 
 # img_path = sys.argv[1] if len(sys.argv) > 1 else "data/Italy/IMG20230803112016.jpg"
 # img_path = Path(img_path)
@@ -18,4 +18,4 @@ import sys
 # results = nearest.knn_query(img_path, 10, data_path, verbose=True)
 
 # ui.run(title="VWM semestralka", favicon="📷", reload=False)
-ui.run(title="VWM semestralka", favicon="📷")
+ui.run(title="SIMages", favicon="📷")
