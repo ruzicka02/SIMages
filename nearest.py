@@ -110,4 +110,4 @@ if __name__ == "__main__":
     data_path = Path(data_path)
 
     # results = knn_query(img_path, 10)
-    result = knn_query(img_path, 10, data_path, verbose=True)
+    result = knn_query(img_path, "euclid", 10, data_path, verbose=True)

@@ -14,7 +14,7 @@ from keras.applications import vgg16
 import numpy as np
 from pathlib import Path
 
-# parameter of the vgg16 model
+# parameter of the vgg16 model, 7 * 7 * 512
 FEATURE_SIZE = 25088
 
 def extract_batch(model: vgg16.VGG16, img_paths: list[Path]) -> np.ndarray:
@@ -80,6 +80,7 @@ if __name__ == "__main__":
     dir = sys.argv[1] if len(sys.argv) > 1 else "data"
     features, img_order = extract_dir(Path(dir))
     # print(feat.shape)
+    # np.savez(dir + "/features_uncompressed.npz", features)
     np.savez_compressed(dir + "/features.npz", features)
 
     with open(dir + "/img_order.txt", "w") as f:
