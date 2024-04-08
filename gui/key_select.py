@@ -14,7 +14,7 @@ metric = None
 query_type = None
 limit = None
 
-def get_url(img: str) -> str:
+def get_url(img: Path) -> str:
     url = f"/similar?source_img={img}"
     if join_on:
         url += f"&join_on={join_on}"
@@ -53,7 +53,7 @@ def select_dir(toggle: ui.toggle, switch_shuffle: ui.switch):
 
     print("Select toggle:", toggle.value)
     with open(toggle.value / "img_order.txt", "r") as f:
-        new_imgs = [toggle.value / Path(x) for x in f.read().split()]
+        new_imgs = [toggle.value / Path(x.strip()) for x in f.readlines()]
         if switch_shuffle.value:
             shuffle(new_imgs)
         all_imgs = new_imgs

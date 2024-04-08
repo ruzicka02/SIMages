@@ -20,7 +20,7 @@ def _prepare_query(img: Path, metric: str = "cos", query_data: Path | None = Non
 
     # target features of img
     with open(img.parent / "img_order.txt", "r") as f:
-        names = f.read().split()
+        names = [x.strip() for x in f.readlines()]
 
     img_index = names.index(img.name)
     img_features = np.load(img.parent / "features.npz")['arr_0'][img_index,:]  # selection from "archive" needed for npz
@@ -28,7 +28,7 @@ def _prepare_query(img: Path, metric: str = "cos", query_data: Path | None = Non
     # features of matched elements
     check_features(query_data)
     with open(query_data / "img_order.txt", "r") as f:
-        names = f.read().split()
+        names = [x.strip() for x in f.readlines()]
 
     feats = np.load(query_data / "features.npz")['arr_0']  # selection from "archive" needed for npz
     imgs = feats.shape[0]
@@ -36,7 +36,7 @@ def _prepare_query(img: Path, metric: str = "cos", query_data: Path | None = Non
     print(f"{imgs} images loaded")
 
     # exactly this should be prevented by check_features
-    assert imgs == len(names), "Mismatch detected between the image names and feature matrix."
+    assert imgs == len(names), f"Mismatch detected between the image names {len(names) = } and feature matrix. {imgs = }"
 
     assert metric in ["cos", "euclid"], "Invalid metric given."
     if metric == "cos":
