@@ -89,20 +89,24 @@ def compute_features(dir_path: Path) -> None:
         print(*img_order, sep='\n', file=f)
 
 def check_features(dir_path: Path) -> None:
-    """Checks whether the features and order file are present in the directory.
+    """
+    Checks whether the features and order file are present in the directory.
+    Also checks whether new files were also added to the directory by comparing lengths.
     If not, they are computed and written into the files.
-    TODO... check whether new files were also added to the directory, either by lazy length comparing or set difference."""
+    """
     if not (dir_path / "img_order.txt").exists() or not (dir_path / "features.npz").exists():
         print(f"Something is missing -- (re)computing features for {dir_path}")
         compute_features(dir_path)
 
+
     with open(dir_path / "img_order.txt", 'r') as f:
-        img_order_lines = sum(1 for _ in f)
+        img_order_lines = {l.strip() for l in f}
 
-    imgs_present = sum(1 for x in dir_path.glob("*") if x.suffix in SUPPORTED_IMG)
+    imgs_present = {x.name for x in dir_path.glob("*") if x.suffix in SUPPORTED_IMG}
 
-    if img_order_lines != imgs_present:
-        print(f"Files in the directory changed ({img_order_lines = }, {imgs_present = }) -- (re)computing features for {dir_path}")
+    if img_order_lines.symmetric_difference(imgs_present) != set():
+        print(f"Files in the directory changed ({len(img_order_lines) = }, {len(imgs_present) = }, "
+              f"symm_diff {img_order_lines.symmetric_difference(imgs_present)}) -- (re)computing features for {dir_path}")
         compute_features(dir_path)
 
 if __name__ == "__main__":
