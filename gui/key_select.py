@@ -4,6 +4,7 @@ from random import shuffle
 import os
 
 from utils import list_subdirs
+from compute_features import check_features
 
 draw_imgs = []
 all_imgs = []
@@ -45,7 +46,12 @@ def select_dir(toggle: ui.toggle, switch_shuffle: ui.switch):
     global all_imgs
     global draw_imgs
     global imgs_visible
-    print("Toggle:", toggle.value)
+
+    # at this stage, only the index is needed -- replacable by listing all images in the directory
+    # however, the features will likely be needed later anyway
+    check_features(toggle.value)
+
+    print("Select toggle:", toggle.value)
     with open(toggle.value / "img_order.txt", "r") as f:
         new_imgs = [toggle.value / Path(x) for x in f.read().split()]
         if switch_shuffle.value:

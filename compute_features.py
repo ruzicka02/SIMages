@@ -16,6 +16,8 @@ from pathlib import Path
 
 # parameter of the vgg16 model, 7 * 7 * 512
 FEATURE_SIZE = 25088
+# other formats are probably also compatible
+SUPPORTED_IMG = [".png", ".jpg", ".jpeg"]
 
 def extract_batch(model: vgg16.VGG16, img_paths: list[Path]) -> np.ndarray:
     """
@@ -51,7 +53,7 @@ def extract_dir(dir_path: Path) -> tuple[np.ndarray, list[str]]:
     loaded = 0
     img_to_load = []
     for img in dir_path.iterdir():
-        if img.suffix in [".png", ".jpg", ".jpeg"]:  # other formats are probably also compatible
+        if img.suffix in SUPPORTED_IMG:
             # print(img)
             img_order.append(img.name)  # only the file name, assumes the dir path knowledge
             img_to_load.append(img)  # full name, for image loading and processing
@@ -76,13 +78,33 @@ def extract_dir(dir_path: Path) -> tuple[np.ndarray, list[str]]:
     feat_array = np.concatenate(feats, axis=0)  # highest axis... individual images
     return feat_array, img_order
 
+def compute_features(dir_path: Path) -> None:
+    """Computes the features and writes them into the features.npz file."""
+    features, img_order = extract_dir(dir_path)
+    # print(features.shape)
+    # np.savez(dir_path / "features_uncompressed.npz", features)
+    np.savez_compressed(dir_path / "features.npz", features)
+
+    with open(dir_path / "img_order.txt", "w") as f:
+        print(*img_order, sep='\n', file=f)
+
+def check_features(dir_path: Path) -> None:
+    """Checks whether the features and order file are present in the directory.
+    If not, they are computed and written into the files.
+    TODO... check whether new files were also added to the directory, either by lazy length comparing or set difference."""
+    if not (dir_path / "img_order.txt").exists() or not (dir_path / "features.npz").exists():
+        print(f"Something is missing -- (re)computing features for {dir_path}")
+        compute_features(dir_path)
+
+    with open(dir_path / "img_order.txt", 'r') as f:
+        img_order_lines = sum(1 for _ in f)
+
+    imgs_present = sum(1 for x in dir_path.glob("*") if x.suffix in SUPPORTED_IMG)
+
+    if img_order_lines != imgs_present:
+        print(f"Files in the directory changed ({img_order_lines = }, {imgs_present = }) -- (re)computing features for {dir_path}")
+        compute_features(dir_path)
+
 if __name__ == "__main__":
     dir = sys.argv[1] if len(sys.argv) > 1 else "data"
-    features, img_order = extract_dir(Path(dir))
-    # print(feat.shape)
-    # np.savez(dir + "/features_uncompressed.npz", features)
-    np.savez_compressed(dir + "/features.npz", features)
-
-    with open(dir + "/img_order.txt", "w") as f:
-        for img in img_order:
-            f.write(f"{img}\n")
+    compute_features(Path(dir))

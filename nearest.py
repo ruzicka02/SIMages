@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from utils import chdir
+from compute_features import check_features
 
 def _prepare_query(img: Path, metric: str = "cos", query_data: Path | None = None) -> tuple[list[Path], list[float]]:
     chdir()
@@ -14,15 +15,18 @@ def _prepare_query(img: Path, metric: str = "cos", query_data: Path | None = Non
     if not query_data:
         query_data = img.parent
 
+    # could be optimized by just computing feature of img
+    check_features(img.parent)
+
     # target features of img
     with open(img.parent / "img_order.txt", "r") as f:
         names = f.read().split()
 
     img_index = names.index(img.name)
-
     img_features = np.load(img.parent / "features.npz")['arr_0'][img_index,:]  # selection from "archive" needed for npz
 
     # features of matched elements
+    check_features(query_data)
     with open(query_data / "img_order.txt", "r") as f:
         names = f.read().split()
 
@@ -31,6 +35,7 @@ def _prepare_query(img: Path, metric: str = "cos", query_data: Path | None = Non
 
     print(f"{imgs} images loaded")
 
+    # exactly this should be prevented by check_features
     assert imgs == len(names), "Mismatch detected between the image names and feature matrix."
 
     assert metric in ["cos", "euclid"], "Invalid metric given."
