@@ -1,33 +1,15 @@
-# BI-VWM -- semestrální projekt
+# 🇬🇧 SIMages - Similarity join on image database
 
-Téma: Podobnostní spojení na databázi obrázků
+A web application for the similarity connection of one image, the so-called key, with a set of images. Images are compared based on the VGG-16 convolutional neural network embeddings (activations of the final dense layer). The application will load the available image sets from the appropriate directory and allow the user to interactively select the key and image set. At the same time, the user has several search parameters at his disposal, such as the selection of a predicate (kNN, range) and its parameter or the selection of a metric (cosine similarity, Euclidean distance). The user will then see his chosen key image on a new screen, together with connected images sorted from most similar according to the chosen metric.
 
-Cílem projektu je vytvoření webové aplikace, která umožní podobnostní spojení dvou sad obrázků s využitím
-rozsahového dotazu (range query) a dotazu na k nejbližších sousedů (k-nearest neighbor (kNN) query).
+After completing the query, the user has the option to continue editing it, either by changing the search parameters or selecting a new key image. For clarity, the application always displays only similarity connections for one key image. With this approach, the application tries to simulate the appearance of recommendation algorithms of various web services. It is therefore a simple recommendation algorithm based on content, which for practical use in an online service could be supplemented with, for example, a collaborative filtering algorithm, i.e. recommendations based on the activity of other users.
 
-## Report
+See [the full report 🇨🇿](report/report.pdf) for more details. The project was created as a semester project at FIT CTU in the course BI-VWM.
 
-Zpráva k projektu z předmětu BI-VWM.21 musí obsahovat následující části:
-- Název projektu a seznam členů týmu
-- Popis projektu
-	- Popis toho, co bylo cílem projektu, jaké byly vstupy a výstupy projektu.
-- Způsob řešení
-	- Použité přístupy, vzorce a algoritmy vztahující se k zadanému tématu.
-- Implementace
-	- Popsat jaké byly použity programovací jazyky, jaká je architektura aplikace, jaké
-knihovny byly použity, jaké jsou požadavky na spuštění aplikace, apod.
-- Příklady vstupu a výstupu
-	- Screenshoty s popisem konkrétního vstupu a výstupu aplikace.
-- Experimentální sekce
-	- Většinu aplikací lze posuzovat z hlediska přesnosti a/nebo rychlosti. Obojí je závislé
-na různých vstupních parametrech projektu. V experimentech by měly být tyto
-parametry zkoumány. Např. rychlost typicky závisí na velikosti vstupního datasetu.
-Lze tedy vyrobit tabulku nebo graf se závislostí času na velikosti vstupního datasetu.
-- Diskuze
-	- Většina projektů je typu “proof of koncept“, tj. jde o vyzkoušení poznatků
-prezentovaných v přednáškách v praxi. Nejde tedy o detailní řešení všech problémů,
-které mohou při implementaci nastat – takový projekt by dalece přesahoval rámec
-semestrálního projektu. Tato sekce tedy obsahuje rozbor těchto nedostatků a
-možnosti jejich řešení.
--  Závěr
-	- Stručné shrnutí toho, co se řešilo, zhodnocení výstupů projektu.
+# 🇨🇿 SIMages - Podobnostní spojení na databázi obrázků
+
+Webová aplikace pro podobnostní spojení jednoho obrázku, tzv. klíče, se sadou obrázků. Obrázky jsou porovnávány na základě deskriptorů vygenerovaných konvoluční neuronovou sítí VGG-16. Aplikace nahraje dostupné sady obrázků z příslušného adresáře a umožní uživateli interaktivní výběr klíče a sady obrázků. Zároveň má uživatel k dispozici několik parametrů vyhledávání, jako je výběr predikátu (kNN, rozsahový) a jeho parametru nebo výběr metriky (cosinová podobnost, Euklidovská vzdálenost). Uživateli se následně na nové obrazovce zobrazí jeho zvolený klíčový obrázek, společně se spojenými obrázky seřazenými od nejpodobnějších podle zvolené metriky.
+
+Po dokončení dotazu má uživatel možnost jej nadále upravovat, buď změnou parametrů vyhledávání nebo výběrem nového klíčového obrázku. Pro přehlednost aplikace vždy zobrazuje pouze podobnostní spojení pro jeden klíčový obrázek. Aplikace se tímto přístupem snaží simu- lovat vzhled doporučovacích algoritmů různých webových služeb. Jedná se tedy o jednoduchý algoritmus doporučování na základě obsahu, který by pro praktické použití v on-line službě mohl být doplněn např. o algoritmus kolaborativního filtrování, tedy doporučení na základě aktivity jiných uživatelů.
+
+Další podrobnosti jsou obsaženy v [závěrečném reportu 🇨🇿](report/report.pdf). Projekt vznikl jako semestrální práce na FIT ČVUT do předmětu BI-VWM.
